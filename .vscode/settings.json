@@ -1,0 +1,10 @@
+{
+    "autodesk.forge.environments": [
+        {
+            "title": "Forge - Model Viewer",
+            "clientId": " XPirAYZGXReyvc5q5MOtrtLFaty6T4Lk",
+            "clientSecret": "aHmosOfshvzACkXA",
+            "region": "US"
+        }
+    ]
+}

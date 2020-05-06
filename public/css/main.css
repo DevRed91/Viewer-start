@@ -1,0 +1,81 @@
+html, body{
+  min-height: 100%;
+  height: 100%;
+}
+
+.fill{
+  height: calc(100vh - 100px);
+}
+
+body {
+  padding-top: 60px; /* space for the top nav bar */
+  margin-right: 30px;
+}
+
+#userHubs {
+  overflow: auto;
+  width: 100%;
+  height: calc(100vh - 150px);
+}
+
+#forgeViewer {
+  width: 100%;
+}
+
+.handleSelectionExtensionIcon {
+  background-image: url(./img/selection.png);
+  background-size: 24px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.rotationButtonExtensionIcon {
+  background-image: url(./img/emblem_camera.png);
+  background-size: 36px;
+  background-repeat: no-repeat;
+  background-position: center;
+  
+}
+
+
+
+/* #docking-panel-container-solid-color-a{
+  top: "10px";
+  left: "10px";
+  width: "auto";
+  height: "auto";
+  resize: "auto";
+} */
+
+#dashboard{
+  overflow: auto;
+  height: calc(100vh - 100px);
+}
+
+.transition-width {
+  transition: width 1s ease-in-out;
+}
+
+.dashboardPanel {
+  width: 100%;
+  padding: 3%;
+  display: block;
+}
+
+#pieChart{
+  width: 400;
+  height: 400;
+}
+
+/* #AwesomeExtensionsToolbar{
+  position: relative;
+
+  top: 5em;
+  left: -3em;
+   
+} */
+
+/* #Chart{
+  width: 400px;
+  height: 400px;
+} */
