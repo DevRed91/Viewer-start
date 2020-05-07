@@ -1,67 +1,66 @@
 ///////////////////////////////
 //Docking Panel
 ///////////////////////////////
-class MyAwesomePanel extends Autodesk.Viewing.UI.DockingPanel{
+class NestedViewerPanel extends Autodesk.Viewing.UI.DockingPanel{
     constructor(viewer, container, id, title, options) {
         super(container, id, title, options);
-        
-        this.viewer = viewer;
+        // this._urn = '';
+        this._parentViewer = viewer;
+        // this._filter = filter;
+        // this._
+        // this.viewer = viewer;
 
-        // // the style of the docking panel
-        // this.container.classList.add('docking-panel-container-solid-color-a');
-        this.container.style.top = "10px";
-        this.container.style.left = "10px";
-        this.container.style.width = "600";
-        this.container.style.height = "600";
-        this.container.style.resize = "auto";
-        this.container.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
+    }
 
-        //this is where we should place the content of our panel
+    // get urn(){
+    //     return this._urn;
+    // }
+
+    // set urn(value){
+    //     if (this._urn !== value){
+    //         this._urn = value;
+    //         this._updateDrop
+    //     }
+    // }
+    initialize(){
+        this.container.style.top = '5em';
+        this.container.style.right = '8em';
+        this.container.style.width = '400px';
+        this.container.style.height = '600px';
+        this.container.style.backgroundColor = 'white';
+
+        this.title = this.createTitleBar(this.titleLabel || this.container.id);
+        this.container.appendChild(this.title);
+
         this._container = document.createElement('div');
         this._container.style.position = 'absolute';
         this._container.style.left = '0';
         this._container.style.top = '50px';
         this._container.style.width = '100%';
-        // this._container.style.height = '100%'; // 400px - 50px (title bar) - 20px (footer)
+        this._container.style.height = '100%'; // 400px - 50px (title bar) - 20px (footer)
         this.container.appendChild(this._container);
 
-        let canvas = document.createElement('canvas');
-        canvas.style.width = '100%';
-        // canvas.style.height = '100%';
-        canvas.id = 'pieChart';
-
-        // div.innerText = 'My content here';
-        // let ctx = document.getElementById('pieChart');
-        // let chart = new Chart(ctx, {
-        //     // The type of chart we want to create
-        //     type: 'line',
-
-        //     // The data for our dataset
-        //     data: {
-        //         labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-        //         datasets: [{
-        //             label: 'My First dataset',
-        //             backgroundColor: 'rgb(255, 99, 132)',
-        //             borderColor: 'rgb(255, 99, 132)',
-        //             data: [0, 10, 5, 2, 20, 30, 45]
-        //         }]
-        //     },
-
-        //     // Configuration options go here
-        //     options: {}
-        // });
-        this.container.appendChild(canvas);
-        // // and may also append child elements...
-
-
+        this._overlay = document.createElement('canvas');
+        this._overlay.id = 'canvasId';
+        this._overlay.style.width = '100%';
+        this._overlay.style.height = '100%';
+        this._overlay.style.display = 'none';
+        this._overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        this._overlay.style.color = 'white';
+        this._overlay.style.zIndex = '101';
+        this._overlay.style.justifyContent = 'center';
+        this._overlay.style.alignItems = 'center';
+        this._container.appendChild(this._overlay);
     }
+
+   
 }
 
 
 ///////////////////////////////
 //Docking Panel button
 ///////////////////////////////
-class DockingPanelButton extends Autodesk.Viewing.Extension {
+class NestedViewerExtension extends Autodesk.Viewing.Extension {
     constructor(viewer, options) {
         super(viewer, options);
         this._group = null;
@@ -108,42 +107,15 @@ class DockingPanelButton extends Autodesk.Viewing.Extension {
 
     }
 
-    drawRectangle(){
-        let ctx = document.getElementById('pieChart');
-        let chart = new Chart(ctx, {
-            // The type of chart we want to create
-            type: 'doughnut',
-
-            // The data for our dataset
-            data: {
-                labels: ['Workspace', 'Collab', 'Service', 'Corridors'],
-                datasets: [{
-                    label: 'Space Demarcation',
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)'
-                        
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)'
-                    ],
-                    data: [60, 10, 20, 10]
-                }]
-            },
-
-            // Configuration options go here
-            options: {
-                labels:{
-                    fontColor: 'white'
-                }
-            }
-        });
-    }
+    // drawRectangle(){
+    //     let c = document.getElementById("canvasId");
+    //     let ctx = c.getContext("2d");
+    //     ctx.beginPath();
+    //     ctx.lineWidth = "50";
+    //     ctx.strokeStyle = "blue";
+    //     ctx.rect(200, 150, 150, 80);
+    //     ctx.stroke();
+    // }
 
     onToolbarCreated() {
         this._group = this.viewer.toolbar.getControl('AwesomeExtensionsToolbar');
@@ -159,25 +131,25 @@ class DockingPanelButton extends Autodesk.Viewing.Extension {
         let viewer = this.viewer;
         let panel = this.panel;
 
-        let dockingButton = this.createButton(
-            'DockingButton',
-            'Docking Extension',
-            'dockingButtonIcon',
+        let NestingButton = this.createButton(
+            'NestingButton',
+            'Nesting Extension',
+            'NestingButtonIcon',
         )
 
-        dockingButton.onClick = (ev) => {
+        NestingButton.onClick = (ev) => {
             // Check if the panel is created or not
             if (panel == null) {
-                panel = new MyAwesomePanel(viewer, viewer.container, 'descriptionPanel', 'Description');
+                panel = new NestedViewerPanel(viewer, viewer.container, 'descriptionPanel', 'Description');
             }
             // Show/hide docking panel
             panel.setVisible(!panel.isVisible());
 
-            // If panel is NOT visible, exit the function
-            if (!panel.isVisible())
-                return;
+            // this.drawRectangle();
 
-                this.drawRectangle();
+            // If panel is NOT visible, exit the function
+//             if (!panel.isVisible())
+//                 return;
 
 //             // First, the viewer contains all elements on the model, including
 //             // categories (e.g. families or part definition), so we need to enumerate
@@ -215,9 +187,9 @@ class DockingPanelButton extends Autodesk.Viewing.Extension {
 //          });
         }
         
-        this._group.addControl(dockingButton);
+        this._group.addControl(NestingButton);
     }
         
 }
 
-Autodesk.Viewing.theExtensionManager.registerExtension('DockingPanelButton', DockingPanelButton);
+Autodesk.Viewing.theExtensionManager.registerExtension('NestedViewerExtension', NestedViewerExtension);
