@@ -23,15 +23,16 @@ body {
 }
 
 .handleSelectionExtensionIcon {
-  background-image: url(./img/selection.png);
+  background-image: url(https://img.icons8.com/ios/50/000000/cursor.png);
   background-size: 24px;
+  background-color: aliceblue;
   background-repeat: no-repeat;
   background-position: center;
 }
 
-.rotationButtonExtensionIcon {
-  background-image: url(./img/emblem_camera.png);
-  background-size: 36px;
+#rotationButtonExtensionButton {
+  background-image: url(https://img.icons8.com/color/64/000000/picture-in-picture.png);
+  background-size: 24px;
   background-repeat: no-repeat;
   background-position: center;
   
@@ -67,13 +68,12 @@ body {
   height: 400;
 }
 
-/* #AwesomeExtensionsToolbar{
-  position: relative;
-
-  top: 5em;
-  left: -3em;
-   
-} */
+#AwesomeExtensionsToolbar{
+  position: absolute; 
+  top: -30em;
+  left: 0em;
+  width: 50px;
+} 
 
 /* #Chart{
   width: 400px;
