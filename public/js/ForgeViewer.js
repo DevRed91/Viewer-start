@@ -10,7 +10,7 @@ function launchViewer(urn, viewableId) {
   };
 
   Autodesk.Viewing.Initializer(options, () => {
-    viewer = new Autodesk.Viewing.GuiViewer3D(document.getElementById('forgeViewer'), { extensions: [ 'HandleSelectionExtension', 'DockingChartButton','NestedViewerExtension', 'DockingQuantityButton'] });
+    viewer = new Autodesk.Viewing.GuiViewer3D(document.getElementById('forgeViewer'), { extensions: [ 'HandleSelectionExtension', 'DockingChartButton','NestedViewerExtension', 'DockingQuantityButton','ModelSummaryExtension', 'Autodesk.ADN.Viewing.Extension.Chart'] });
     viewer.start();
     var documentId = 'urn:' + urn;
     Autodesk.Viewing.Document.load(documentId, onDocumentLoadSuccess, onDocumentLoadFailure);

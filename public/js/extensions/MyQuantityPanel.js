@@ -1,7 +1,7 @@
 ///////////////////////////////
 //Docking Panel
 ///////////////////////////////
-class MyChartPanel extends Autodesk.Viewing.UI.DockingPanel{
+class MyQuantityPanel extends Autodesk.Viewing.UI.DockingPanel{
     constructor(viewer, container, id, title, options) {
         super(container, id, title, options);
         
@@ -24,11 +24,11 @@ class MyChartPanel extends Autodesk.Viewing.UI.DockingPanel{
         this._container.style.width = '100%';
         // this._container.style.height = '100%'; // 400px - 50px (title bar) - 20px (footer)
         this.container.appendChild(this._container);
+
         let canvas = document.createElement('canvas');
         canvas.style.width = '100%';
         // canvas.style.height = '100%';
-        canvas.id = 'pieChart';
-
+        canvas.id = 'barChart';
         this.container.appendChild(canvas);
 
     }

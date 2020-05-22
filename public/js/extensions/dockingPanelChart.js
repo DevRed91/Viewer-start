@@ -25,18 +25,6 @@ class DockingChartButton extends Autodesk.Viewing.Extension {
         return true;
     }
 
-    // getAllLeafComponents(callback) {
-    //     this.viewer.getObjectTree(function (tree) {
-    //         let leaves = [];
-    //         tree.enumNodeChildren(tree.getRootId(), function (dbId) {
-    //             if (tree.getChildCount(dbId) === 0) {
-    //                 leaves.push(dbId);
-    //             }
-    //         }, true);
-    //         callback(leaves);
-    //     });
-    // }
-
     createButton(id, tooltip, addClass){
         let button = new Autodesk.Viewing.UI.Button(id);
 
@@ -48,9 +36,26 @@ class DockingChartButton extends Autodesk.Viewing.Extension {
 
     }
 
+    dynamicColors(count){
+        let background = [];
+        let borders = [];
+        for (let i = 0; i < count; i++){
+            let r = Math.floor(Math.random() * 255);
+            let g = Math.floor(Math.random() * 255);
+            let b = Math.floor(Math.random() * 255);
+        
+            background.push('rgba(' + r + ', ' + g + ', '+ b + ', 0.7)');
+            borders.push('rgba(' + r + ', ' + g + ', '+ b + ', 0.7)');
+        } 
+        return {background:background, borders:borders};
+    }
+
     drawChart(){
         let ctx = document.getElementById('pieChart');
-        let chart = new Chart(ctx, {
+        let dataSet = [60, 10, 20, 10]
+        let colors = this.dynamicColors(dataSet.length);
+        
+        new Chart(ctx, {
             // The type of chart we want to create
             type: 'doughnut',
 
@@ -59,20 +64,10 @@ class DockingChartButton extends Autodesk.Viewing.Extension {
                 labels: ['Workspace', 'Collab', 'Service', 'Corridors'],
                 datasets: [{
                     label: 'Space Demarcation',
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)'
-                        
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)'
-                    ],
-                    data: [60, 10, 20, 10]
+                    backgroundColor: colors.background,
+                    borderColor: colors.borders,
+                    borderWidth: 1,
+                    data: dataSet
                 }]
             },
 

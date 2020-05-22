@@ -4,7 +4,7 @@ $(document).ready(function () {
             // to make sure we get the viewer, let's use the global var NOP_VIEWER
             if (NOP_VIEWER === null || NOP_VIEWER === undefined) return;
             new Dashboard(NOP_VIEWER, [
-                new BarChart('Material'),
+                new PieChart('Material')
                 // new PieChart('Material')
             ])
         }
