@@ -1,15 +1,10 @@
-class MyQuantityPanel extends Autodesk.Viewing.UI.PropertyPanel {
-    constructor(viewer, container, id, title, options) {
-        super(container, id, title, options);
-        this.viewer = viewer;
-    }
-}
 
 class DockingQuantityButton extends Autodesk.Viewing.Extension {
     constructor(viewer, options) {
         super(viewer, options);
         this._group = null;
         this._button = null;
+        this._modelData = {};
     }
 
     load() {
@@ -28,9 +23,11 @@ class DockingQuantityButton extends Autodesk.Viewing.Extension {
         console.log('DockingQuantityButton has been unloaded');
         return true;
     }
+
     getAllLeafComponents(callback) {
-        this.viewer.getObjectTree(function (tree) {
-            let leaves = [];
+        // from https://learnforge.autodesk.io/#/viewer/extensions/panel?id=enumerate-leaf-nodes
+        viewer.getObjectTree(function (tree) {
+            var leaves = [];
             tree.enumNodeChildren(tree.getRootId(), function (dbId) {
                 if (tree.getChildCount(dbId) === 0) {
                     leaves.push(dbId);
@@ -38,6 +35,65 @@ class DockingQuantityButton extends Autodesk.Viewing.Extension {
             }, true);
             callback(leaves);
         });
+    }
+    
+    dynamicColors(count){
+        let background = [];
+        let borders = [];
+        for (let i = 0; i < count; i++){
+            let r = Math.floor(Math.random() * 255);
+            let g = Math.floor(Math.random() * 255);
+            let b = Math.floor(Math.random() * 255);
+        
+            background.push('rgba(' + r + ', ' + g + ', '+ b + ', 0.7)');
+            borders.push('rgba(' + r + ', ' + g + ', '+ b + ', 0.7)');
+        } 
+        return {background:background, borders:borders};
+    }
+
+    drawChart(propertyName){
+        let getLabels = (propertyName) => {
+            return Object.keys(this._modelData[propertyName]);
+        }
+        let getCountInstances = (propertyName) => {
+                return Object.keys(this._modelData[propertyName]).map((key) => this._modelData[propertyName][key].length);
+        }
+
+        let ctx = document.getElementById('barChart');
+
+        let dataSet = getCountInstances(propertyName);
+        console.log(dataSet);
+        let colors = this.dynamicColors(getLabels(propertyName).length);
+        new Chart(ctx, {
+                // The type of chart we want to create
+                type: 'bar',
+    
+                // The data for our dataset
+                data: {
+                    labels: getLabels(propertyName),
+                    datasets: [{
+                        label: 'Space Demarcation',
+                        backgroundColor: colors.background,
+                        borderColor: colors.borders,
+                        borderWidth: 1,
+                        data: dataSet
+                    }]
+                },
+    
+                // Configuration options go here
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                },
+                legend: {
+                    display: false
+                },
+            });
     }
 
     onToolbarCreated() {
@@ -51,9 +107,9 @@ class DockingQuantityButton extends Autodesk.Viewing.Extension {
         // Add a new button to the toolbar group
         this._button = new Autodesk.Viewing.UI.Button('DockingQuantityButton');
         this._button.onClick = (ev) => {
-            // Check if the panel is created or not
+            // // Check if the panel is created or not
             if (this._panel == null) {
-                this._panel = new MyQuantityPanel(this.viewer, this.viewer.container, 'modelSummaryPanel', 'Model Summary');
+                this._panel = new MyQuantityPanel(this.viewer, this.viewer.container, 'quantityChartPanel', 'Quantity Chart');
             }
             // Show/hide docking panel
             this._panel.setVisible(!this._panel.isVisible());
@@ -62,40 +118,50 @@ class DockingQuantityButton extends Autodesk.Viewing.Extension {
             if (!this._panel.isVisible())
                 return;
 
-            // First, the viewer contains all elements on the model, including
-            // categories (e.g. families or part definition), so we need to enumerate
-            // the leaf nodes, meaning actual instances of the model. The following
-            // getAllLeafComponents function is defined at the bottom
-            this.getAllLeafComponents((dbIds) => {
-                // Now for leaf components, let's get some properties and count occurrences of each value
-                const filteredProps = ['PropertyNameA', 'PropertyNameB'];
-                // Get only the properties we need for the leaf dbIds
-                this.viewer.model.getBulkProperties(dbIds, filteredProps, (items) => {
-                    // Iterate through the elements we found
-                    items.forEach((item) => {
-                        // and iterate through each property
-                        item.properties.forEach(function (prop) {
-                            // Use the filteredProps to store the count as a subarray
-                            if (filteredProps[prop.displayName] === undefined)
-                                filteredProps[prop.displayName] = {};
-                            // Start counting: if first time finding it, set as 1, else +1
-                            if (filteredProps[prop.displayName][prop.displayValue] === undefined)
-                                filteredProps[prop.displayName][prop.displayValue] = 1;
-                            else
-                                filteredProps[prop.displayName][prop.displayValue] += 1;
-                        });
-                    });
-                    // Now ready to show!
-                    // The PropertyPanel has the .addProperty that receives the name, value
-                    // and category, that simple! So just iterate through the list and add them
-                    filteredProps.forEach((prop) => {
-                        if (filteredProps[prop] === undefined) return;
-                        Object.keys(filteredProps[prop]).forEach((val) => {
-                            this._panel.addProperty(val, filteredProps[prop][val], prop);
-                        });
-                    });
-                });
-            });
+                this.getAllLeafComponents((dbIds) => {
+                    let count = dbIds.length;
+                    dbIds.forEach((dbId) => {
+                        this.viewer.getProperties(dbId, (props) => {
+                            props.properties.forEach((prop) => {
+                                // console.log(prop.length);
+                                if (!isNaN(prop.displayValue)) return; // let's not categorize properties that store numbers
+
+                                // // some adjustments for revit:
+                                prop.displayValue = prop.displayValue.replace('Revit ', ''); // remove this Revit prefix
+                                
+                                // //console.log(prop.displayValue);
+                                if (prop.displayValue.indexOf('<') == 0) return; // skip categories that start with <
+
+                                // //console.log(prop);
+                                // // ok, now let's organize the data into this hash table
+                                if (this._modelData[prop.displayName] == null) this._modelData[prop.displayName] = {};
+                                if (this._modelData[prop.displayName][prop.displayValue] == null) this._modelData[prop.displayName][prop.displayValue] = [];
+                                this._modelData[prop.displayName][prop.displayValue].push(dbId);
+
+                                if (prop.displayName === 'Category'){
+
+                                        // if(prop.displayValue === 'Walls'|| prop.displayValue === 'Doors'){
+                                            // for (let i = 0; i < prop.displayValue.length; i++){
+                                            console.log(count);
+                                            console.log(prop.displayName, prop.displayValue.replace('Revit ', ''));
+                                        // }
+                                        
+                                        // console.log(Object.keys(this._modelData[prop.displayName]));
+                                        // console.log(Object.keys(this._modelData[prop.displayName][prop.displayValue]));
+                                        // console.log(Object.keys(this._modelData[prop.displayName]).map((key) => this._modelData[prop.displayName][key].length));
+                                    // this.drawChart(prop.displayName);
+                                //    }
+
+                                }
+
+                            })
+                            //if ((--count) == 0) this.callback();
+
+                                
+                        })
+                    })
+                })
+
         };
         this._button.setToolTip('Quantity Extension');
         this._button.addClass('dockingQuantityIcon');
