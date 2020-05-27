@@ -10,7 +10,7 @@ function launchViewer(urn, viewableId) {
   };
 
   Autodesk.Viewing.Initializer(options, () => {
-    viewer = new Autodesk.Viewing.GuiViewer3D(document.getElementById('forgeViewer'), { extensions: [ 'HandleSelectionExtension', 'DockingChartButton','NestedViewerExtension', 'DockingQuantityButton','ModelSummaryExtension', 'Autodesk.ADN.Viewing.Extension.Chart'] });
+    viewer = new Autodesk.Viewing.GuiViewer3D(document.getElementById('forgeViewer'), { extensions: [ 'HandleSelectionExtension', 'DockingChartButton','NestedViewerExtension', 'DockingQuantityButton', 'RoomShaderExtension'] });
     viewer.start();
     var documentId = 'urn:' + urn;
     Autodesk.Viewing.Document.load(documentId, onDocumentLoadSuccess, onDocumentLoadFailure);
@@ -20,18 +20,7 @@ function launchViewer(urn, viewableId) {
     // if a viewableId was specified, load that view, otherwise the default view
     var viewables = (viewableId ? doc.getRoot().findByGuid(viewableId) : doc.getRoot().getDefaultGeometry());
     viewer.loadDocumentNode(doc, viewables).then(i => {
-      // async function addModel(viewer){
-      //   const sceneBuilder = await viewer.
-      // }
-      // viewer.loadExtension('CameraRotation');
 
-      // async function addModel(){
-      //   const sceneBuilder = await viewer.loadExtension('Autodesk.Viewing.SceneBuilder');
-      //   const modelBuilder = await sceneBuilder.addNewModel({
-      //     conserveMemory: false,
-      //     modelNameOverride: 'My custom model'
-      //   });
-    //   }
     });
   }
 

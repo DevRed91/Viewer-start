@@ -48,6 +48,7 @@ class ModelData {
 
         _this.getAllLeafComponents(function (dbIds) {
             var count = dbIds.length;
+
             dbIds.forEach(function (dbId) {
                 viewer.getProperties(dbId, function (props) {
                     props.properties.forEach(function (prop) {
@@ -57,12 +58,21 @@ class ModelData {
                         prop.displayValue = prop.displayValue.replace('Revit ', ''); // remove this Revit prefix
                         if (prop.displayValue.indexOf('<') == 0) return; // skip categories that start with <
 
-                        // ok, now let's organize the data into this hash table
-                        if (_this._modelData[prop.displayName] == null) _this._modelData[prop.displayName] = {};
-                        if (_this._modelData[prop.displayName][prop.displayValue] == null) _this._modelData[prop.displayName][prop.displayValue] = [];
-                        _this._modelData[prop.displayName][prop.displayValue].push(dbId);
+                        if (prop.displayName === 'Material'){
+                            if (prop.displayValue !== 'Stone - Granite' && prop.displayValue !== 'Leather - Tan' && prop.displayValue !== 'Leather - Brown, Pebble'){
+
+                            // ok, now let's organize the data into this hash table
+                            if (_this._modelData[prop.displayName] == null) _this._modelData[prop.displayName] = {};
+                            if (_this._modelData[prop.displayName][prop.displayValue] == null) _this._modelData[prop.displayName][prop.displayValue] = [];
+                            _this._modelData[prop.displayName][prop.displayValue].push(dbId);
+
+                            console.log(prop.displayName, prop.displayValue.replace('Revit ', ''));
+                            }
+                           
+                        }
+                        
                     })
-                    if ((--count) == 0) callback();
+                        if ((--count) == 0) callback();
                 });
             })
         })

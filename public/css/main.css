@@ -95,12 +95,48 @@ body {
   height: 400px;
 } */
 
-.modelSummaryExtensionIcon {
+#colorToolbar{
+  position: absolute; 
+  /* top: 40em; */
+  left: 0em;
+  /* width: 50px; */
+}
+
+/* .modelSummaryExtensionIcon {
+  background-image: url(https://github.com/encharm/Font-Awesome-SVG-PNG/raw/master/white/png/24/dashboard.png);
+  background-size: 24px;
+  background-repeat: no-repeat;
+  background-position: center;
+} */
+.property-name, .property-value{
+  font-size: 15px;
+}
+
+.property-name{
+  width: 70%;
+  margin: 10px 10px;
+  padding: 20px 20px;
+}
+
+.property-value{
+  width: 40%;
+  left: 60px;
+  margin: 10px 10px;
+  padding: 20px 20px;
+}
+
+#FloorExtensionToolbar{
+  position: absolute; 
+  top: -20em;
+  left: 0em;
+  width: 50px;
+} 
+
+#RoomShaderButton{
   background-image: url(https://github.com/encharm/Font-Awesome-SVG-PNG/raw/master/white/png/24/dashboard.png);
   background-size: 24px;
   background-repeat: no-repeat;
   background-position: center;
 }
-.property-name, .property-value{
-  font-size: 15px;
-}
+
+

@@ -89,7 +89,7 @@ class HandleSelectionExtension extends Autodesk.Viewing.Extension {
                     // Get properties of each dbId
                     this.viewer.model.getProperties(dbId, (props) => {
                         props.properties.forEach((item) => {
-                          //  console.log(item);
+                          // console.log(item);
                             switch (item.displayName){
                                 case 'Category':
                                     console.log(item.displayName, item.displayValue.replace('Revit', ''));
@@ -124,7 +124,6 @@ class HandleSelectionExtension extends Autodesk.Viewing.Extension {
                 this.viewer.isolate(0);
             }
         }
-
 
         this._group.addControl(handleButton);
     }

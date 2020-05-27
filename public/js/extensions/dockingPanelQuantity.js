@@ -1,10 +1,9 @@
-
 class DockingQuantityButton extends Autodesk.Viewing.Extension {
     constructor(viewer, options) {
         super(viewer, options);
         this._group = null;
         this._button = null;
-        this._modelData = {};
+        // this._modelData = {};
     }
 
     load() {
@@ -26,7 +25,7 @@ class DockingQuantityButton extends Autodesk.Viewing.Extension {
 
     getAllLeafComponents(callback) {
         // from https://learnforge.autodesk.io/#/viewer/extensions/panel?id=enumerate-leaf-nodes
-        viewer.getObjectTree(function (tree) {
+        this.viewer.getObjectTree(function (tree) {
             var leaves = [];
             tree.enumNodeChildren(tree.getRootId(), function (dbId) {
                 if (tree.getChildCount(dbId) === 0) {
@@ -51,51 +50,6 @@ class DockingQuantityButton extends Autodesk.Viewing.Extension {
         return {background:background, borders:borders};
     }
 
-    drawChart(propertyName){
-        let getLabels = (propertyName) => {
-            return Object.keys(this._modelData[propertyName]);
-        }
-        let getCountInstances = (propertyName) => {
-                return Object.keys(this._modelData[propertyName]).map((key) => this._modelData[propertyName][key].length);
-        }
-
-        let ctx = document.getElementById('barChart');
-
-        let dataSet = getCountInstances(propertyName);
-        console.log(dataSet);
-        let colors = this.dynamicColors(getLabels(propertyName).length);
-        new Chart(ctx, {
-                // The type of chart we want to create
-                type: 'bar',
-    
-                // The data for our dataset
-                data: {
-                    labels: getLabels(propertyName),
-                    datasets: [{
-                        label: 'Space Demarcation',
-                        backgroundColor: colors.background,
-                        borderColor: colors.borders,
-                        borderWidth: 1,
-                        data: dataSet
-                    }]
-                },
-    
-                // Configuration options go here
-                options: {
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true
-                            }
-                        }]
-                    }
-                },
-                legend: {
-                    display: false
-                },
-            });
-    }
-
     onToolbarCreated() {
         // Create a new toolbar group if it doesn't exist
         this._group = this.viewer.toolbar.getControl('AwesomeExtensionsToolbar');
@@ -106,11 +60,13 @@ class DockingQuantityButton extends Autodesk.Viewing.Extension {
 
         // Add a new button to the toolbar group
         this._button = new Autodesk.Viewing.UI.Button('DockingQuantityButton');
+        
         this._button.onClick = (ev) => {
             // // Check if the panel is created or not
             if (this._panel == null) {
-                this._panel = new MyQuantityPanel(this.viewer, this.viewer.container, 'quantityChartPanel', 'Quantity Chart');
+                this._panel = new ModelSummaryPanel(this.viewer, this.viewer.container, 'quantityChartPanel', 'Quantity Chart');
             }
+            
             // Show/hide docking panel
             this._panel.setVisible(!this._panel.isVisible());
 
@@ -118,49 +74,60 @@ class DockingQuantityButton extends Autodesk.Viewing.Extension {
             if (!this._panel.isVisible())
                 return;
 
+                // this.viewer.search('Rooms', (idArray) => {
+                //     console.log('Rooms numbers in this floor: '+ idArray.length);
+
+                //     $.each(idArray, (num, dbId) => {
+                //         this.viewer.getProperties(dbId, (propData) => {
+                            
+                //             propData.properties.filter((item) => {
+                                
+                //                 return (item.displayName === 'Layer' && item.displayValue === _specificFloorName);
+                                
+                //             })
+                //         })
+                //     })
+                // })
+
                 this.getAllLeafComponents((dbIds) => {
                     let count = dbIds.length;
-                    dbIds.forEach((dbId) => {
-                        this.viewer.getProperties(dbId, (props) => {
-                            props.properties.forEach((prop) => {
-                                // console.log(prop.length);
-                                if (!isNaN(prop.displayValue)) return; // let's not categorize properties that store numbers
+                    let filteredProps = ['Material'];
 
-                                // // some adjustments for revit:
-                                prop.displayValue = prop.displayValue.replace('Revit ', ''); // remove this Revit prefix
+                    this.viewer.model.getBulkProperties(dbIds, filteredProps, (items) => {
+                        items.forEach((item) => {
+                            item.properties.forEach(function (prop){
                                 
-                                // //console.log(prop.displayValue);
-                                if (prop.displayValue.indexOf('<') == 0) return; // skip categories that start with <
+                                if (filteredProps[prop.displayName] === undefined){
+                                    filteredProps[prop.displayName] = {};
+                                    console.log(filteredProps[prop.displayName]);
+                                }
+                                if (filteredProps[prop.displayName][prop.displayValue] === undefined){
+                                    filteredProps[prop.displayName][prop.displayValue] = 1;
+                                    console.log(filteredProps[prop.displayName][prop.displayValue]);
+                                
+                                }else {
+                                    filteredProps[prop.displayName][prop.displayValue] += 1;
+                                }
+                            });
+                        });
 
-                                // //console.log(prop);
-                                // // ok, now let's organize the data into this hash table
-                                if (this._modelData[prop.displayName] == null) this._modelData[prop.displayName] = {};
-                                if (this._modelData[prop.displayName][prop.displayValue] == null) this._modelData[prop.displayName][prop.displayValue] = [];
-                                this._modelData[prop.displayName][prop.displayValue].push(dbId);
+                        filteredProps.forEach((prop) => {
+                            if (filteredProps[prop] === undefined){
+                                return;
+                            }
 
-                                if (prop.displayName === 'Category'){
+                            Object.keys(filteredProps[prop]).forEach((val) => {
+                            if (val !== 'Leather - Brown, Pebble'){
+                                console.log(val, filteredProps[prop][val]);
 
-                                        // if(prop.displayValue === 'Walls'|| prop.displayValue === 'Doors'){
-                                            // for (let i = 0; i < prop.displayValue.length; i++){
-                                            console.log(count);
-                                            console.log(prop.displayName, prop.displayValue.replace('Revit ', ''));
-                                        // }
-                                        
-                                        // console.log(Object.keys(this._modelData[prop.displayName]));
-                                        // console.log(Object.keys(this._modelData[prop.displayName][prop.displayValue]));
-                                        // console.log(Object.keys(this._modelData[prop.displayName]).map((key) => this._modelData[prop.displayName][key].length));
-                                    // this.drawChart(prop.displayName);
-                                //    }
+                                this._panel.addProperty(val, filteredProps[prop][val], prop);
 
                                 }
-
                             })
-                            //if ((--count) == 0) this.callback();
-
-                                
-                        })
+                        });
                     })
-                })
+
+            })
 
         };
         this._button.setToolTip('Quantity Extension');
